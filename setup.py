@@ -42,6 +42,11 @@ class CMakeBuildExtension(build_ext):
         agfs_bin_dir = Path("openviking/bin").resolve()
         agfs_target_binary = agfs_bin_dir / binary_name
 
+        # 0. Skip build if binary already exists (e.g. pre-built manually)
+        if agfs_target_binary.exists():
+            print(f"[OK] Using existing AGFS binary at {agfs_target_binary}")
+            return
+
         # 1. Try to build from source
         if agfs_server_dir.exists() and shutil.which("go"):
             print("Building AGFS server from source...")

@@ -8,7 +8,7 @@
 
 English / [中文](README_CN.md)
 
-<a href="https://www.openviking.ai">Website</a> · <a href="https://github.com/volcengine/OpenViking">GitHub</a> · <a href="https://github.com/volcengine/OpenViking/issues">Issues</a> · <a href="https://www.openviking.ai/docs">Docs</a>
+<a href="https://www.openviking.ai">Website</a> · <a href="https://github.com/lbq110/OpenViking">GitHub</a> · <a href="https://github.com/lbq110/OpenViking/issues">Issues</a> · <a href="https://www.openviking.ai/docs">Docs</a>
 
 [![][release-shield]][release-link]
 [![][github-stars-shield]][github-stars-link]
@@ -65,23 +65,24 @@ Before starting with OpenViking, please ensure your environment meets the follow
 
 ### 1. Installation
 
-#### Python Package
+#### Build from Source
+
+OpenViking requires **Go** (for the AGFS server) and **CMake** + a C++ compiler (for the vector index extension).
 
 ```bash
-pip install openviking
+# macOS: install build dependencies
+brew install go cmake
+
+# Clone and build
+git clone https://github.com/lbq110/OpenViking
+cd OpenViking
+
+uv venv .venv
+uv pip install setuptools pybind11 cmake
+uv pip install -e "."
 ```
 
-#### Rust CLI (Optional)
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/volcengine/OpenViking/main/crates/ov_cli/install.sh | bash
-```
-
-Or build from source:
-
-```bash
-cargo install --git https://github.com/volcengine/OpenViking ov_cli
-```
+> **Note**: `cmake` is also available via `uv pip install cmake` if you prefer not to use brew.
 
 ### 2. Model Preparation
 
@@ -281,6 +282,36 @@ Create a configuration file `~/.openviking/ov.conf`:
 
 </details>
 
+<details>
+<summary><b>Example 3: Using Gemini (Google AI)</b></summary>
+
+Gemini's OpenAI-compatible endpoint works for both embedding and VLM. The embedding model `models/gemini-embedding-001` provides 3072-dimensional vectors.
+
+```json
+{
+  "embedding": {
+    "dense": {
+      "provider" : "openai",
+      "model"    : "models/gemini-embedding-001",
+      "api_key"  : "your-gemini-api-key",
+      "api_base" : "https://generativelanguage.googleapis.com/v1beta/openai/",
+      "dimension": 3072
+    }
+  },
+  "vlm": {
+    "provider": "gemini",
+    "model"   : "gemini-2.0-flash",
+    "providers": {
+      "gemini": { "api_key": "your-gemini-api-key" }
+    }
+  }
+}
+```
+
+Get your API key at [Google AI Studio](https://aistudio.google.com).
+
+</details>
+
 #### Set Environment Variable
 
 After creating the configuration file, set the environment variable to point to it (Linux/macOS):
@@ -327,7 +358,7 @@ try:
 
     # Add resource (supports URL, file, or directory)
     add_result = client.add_resource(
-        path="https://raw.githubusercontent.com/volcengine/OpenViking/refs/heads/main/README.md"
+        path="https://raw.githubusercontent.com/lbq110/OpenViking/refs/heads/main/README.md"
     )
     root_uri = add_result['root_uri']
 
@@ -401,6 +432,27 @@ For production environments, we recommend running OpenViking as a standalone HTT
 To ensure optimal storage performance and data security, we recommend deploying on **Volcengine Elastic Compute Service (ECS)** using the **veLinux** operating system. We have prepared a detailed step-by-step guide to get you started quickly.
 
 👉 **[View: Server Deployment & ECS Setup Guide](./docs/en/getting-started/03-quickstart-server.md)**
+
+---
+
+## Integrations
+
+### pi-mono Coding Agent
+
+[`@mariozechner/pi-viking-memory`](https://github.com/lbq110/pi-mono/tree/feat/pi-viking-memory/packages/pi-viking-memory) is a pi-mono extension that gives the coding agent persistent memory backed by OpenViking.
+
+```
+Pi-mono Agent
+     │
+     ├── recall_memory(query)   → semantic search over past sessions
+     ├── save_memory(content)   → explicitly persist a note
+     ├── explore_memory(uri)    → browse viking:// memory filesystem
+     └── add_knowledge(path)    → index local files for semantic search
+```
+
+Session messages are automatically synced and committed to OpenViking on session shutdown, enabling zero-effort memory accumulation across coding sessions.
+
+See [packages/pi-viking-memory](https://github.com/lbq110/pi-mono/tree/feat/pi-viking-memory/packages/pi-viking-memory) for installation and usage.
 
 ---
 
@@ -581,7 +633,7 @@ Let's work together to define and build the future of AI Agent context managemen
 
 ### Star Trend
 
-[![Star History Chart](https://api.star-history.com/svg?repos=volcengine/OpenViking&type=timeline&legend=top-left)](https://www.star-history.com/#volcengine/OpenViking&type=timeline&legend=top-left)
+[![Star History Chart](https://api.star-history.com/svg?repos=lbq110/OpenViking&type=timeline&legend=top-left)](https://www.star-history.com/#lbq110/OpenViking&type=timeline&legend=top-left)
 
 ---
 
@@ -592,15 +644,15 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](./LICE
 
 <!-- Link Definitions -->
 
-[release-shield]: https://img.shields.io/github/v/release/volcengine/OpenViking?color=369eff&labelColor=black&logo=github&style=flat-square
-[release-link]: https://github.com/volcengine/OpenViking/releases
+[release-shield]: https://img.shields.io/github/v/release/lbq110/OpenViking?color=369eff&labelColor=black&logo=github&style=flat-square
+[release-link]: https://github.com/lbq110/OpenViking/releases
 [license-shield]: https://img.shields.io/badge/license-apache%202.0-white?labelColor=black&style=flat-square
-[license-shield-link]: https://github.com/volcengine/OpenViking/blob/main/LICENSE
-[last-commit-shield]: https://img.shields.io/github/last-commit/volcengine/OpenViking?color=c4f042&labelColor=black&style=flat-square
-[last-commit-shield-link]: https://github.com/volcengine/OpenViking/commits/main
-[github-stars-shield]: https://img.shields.io/github/stars/volcengine/OpenViking?labelColor&style=flat-square&color=ffcb47
-[github-stars-link]: https://github.com/volcengine/OpenViking
-[github-issues-shield]: https://img.shields.io/github/issues/volcengine/OpenViking?labelColor=black&style=flat-square&color=ff80eb
-[github-issues-shield-link]: https://github.com/volcengine/OpenViking/issues
-[github-contributors-shield]: https://img.shields.io/github/contributors/volcengine/OpenViking?color=c4f042&labelColor=black&style=flat-square
-[github-contributors-link]: https://github.com/volcengine/OpenViking/graphs/contributors
+[license-shield-link]: https://github.com/lbq110/OpenViking/blob/main/LICENSE
+[last-commit-shield]: https://img.shields.io/github/last-commit/lbq110/OpenViking?color=c4f042&labelColor=black&style=flat-square
+[last-commit-shield-link]: https://github.com/lbq110/OpenViking/commits/main
+[github-stars-shield]: https://img.shields.io/github/stars/lbq110/OpenViking?labelColor&style=flat-square&color=ffcb47
+[github-stars-link]: https://github.com/lbq110/OpenViking
+[github-issues-shield]: https://img.shields.io/github/issues/lbq110/OpenViking?labelColor=black&style=flat-square&color=ff80eb
+[github-issues-shield-link]: https://github.com/lbq110/OpenViking/issues
+[github-contributors-shield]: https://img.shields.io/github/contributors/lbq110/OpenViking?color=c4f042&labelColor=black&style=flat-square
+[github-contributors-link]: https://github.com/lbq110/OpenViking/graphs/contributors

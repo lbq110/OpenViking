@@ -8,7 +8,7 @@
 
 [English](README.md) / 中文
 
-<a href="https://www.openviking.ai">官网</a> · <a href="https://github.com/volcengine/OpenViking">GitHub</a> · <a href="https://github.com/volcengine/OpenViking/issues">问题反馈</a> · <a href="https://www.openviking.ai/docs">文档</a>
+<a href="https://www.openviking.ai">官网</a> · <a href="https://github.com/lbq110/OpenViking">GitHub</a> · <a href="https://github.com/lbq110/OpenViking/issues">问题反馈</a> · <a href="https://www.openviking.ai/docs">文档</a>
 
 [![][release-shield]][release-link]
 [![][github-stars-shield]][github-stars-link]
@@ -64,9 +64,24 @@ OpenViking 是一个开源的、专为 AI Agent 设计的上下文数据库。
 
 ### 1. 安装 OpenViking
 
+#### 从源码构建
+
+OpenViking 需要 **Go**（用于编译 AGFS 服务）和 **CMake** + C++ 编译器（用于向量索引扩展）。
+
 ```bash
-pip install openviking
+# macOS：安装构建依赖
+brew install go cmake
+
+# 克隆并构建
+git clone https://github.com/lbq110/OpenViking
+cd OpenViking
+
+uv venv .venv
+uv pip install setuptools pybind11 cmake
+uv pip install -e "."
 ```
+
+> **注意**：如果不想使用 brew，也可以通过 `uv pip install cmake` 安装 cmake。
 
 ### 2. 模型准备
 
@@ -159,6 +174,36 @@ OpenViking 支持多种模型服务：
 
 </details>
 
+<details>
+<summary><b>示例 3：使用 Gemini（Google AI）</b></summary>
+
+Gemini 的 OpenAI 兼容端点同时支持 Embedding 和 VLM。Embedding 模型 `models/gemini-embedding-001` 提供 3072 维向量。
+
+```json
+{
+  "embedding": {
+    "dense": {
+      "provider" : "openai",
+      "model"    : "models/gemini-embedding-001",
+      "api_key"  : "your-gemini-api-key",
+      "api_base" : "https://generativelanguage.googleapis.com/v1beta/openai/",
+      "dimension": 3072
+    }
+  },
+  "vlm": {
+    "provider": "gemini",
+    "model"   : "gemini-2.0-flash",
+    "providers": {
+      "gemini": { "api_key": "your-gemini-api-key" }
+    }
+  }
+}
+```
+
+在 [Google AI Studio](https://aistudio.google.com) 获取 API Key。
+
+</details>
+
 #### 设置环境变量
 
 创建好配置文件后，设置环境变量指向配置文件（Linux/macOS）：
@@ -205,7 +250,7 @@ try:
 
     # Add resource (supports URL, file, or directory)
     add_result = client.add_resource(
-        path="https://raw.githubusercontent.com/volcengine/OpenViking/refs/heads/main/README.md"
+        path="https://raw.githubusercontent.com/lbq110/OpenViking/refs/heads/main/README.md"
     )
     root_uri = add_result['root_uri']
 
@@ -279,6 +324,27 @@ Search results:
 为了确保存储性能与数据安全，我们推荐使用 **火山引擎云服务器 (ECS)** 结合 veLinux 系统进行部署。我们准备了详细的测试教程，点击下方链接即可快速上手。
 
 👉 **[点击查看：服务端部署与ECS测试文档](./docs/zh/getting-started/03-quickstart-server.md)**
+
+## 集成
+
+### pi-mono 编程 Agent
+
+[`@mariozechner/pi-viking-memory`](https://github.com/lbq110/pi-mono/tree/feat/pi-viking-memory/packages/pi-viking-memory) 是一个 pi-mono 扩展，让编程 Agent 拥有由 OpenViking 支持的持久化跨会话记忆。
+
+```
+Pi-mono Agent
+     │
+     ├── recall_memory(query)   → 语义搜索历史会话记忆
+     ├── save_memory(content)   → 主动保存关键信息
+     ├── explore_memory(uri)    → 浏览 viking:// 记忆文件系统
+     └── add_knowledge(path)    → 索引本地文件供语义搜索
+```
+
+会话消息在 session shutdown 时自动同步并提交到 OpenViking，实现零成本的跨会话记忆积累。
+
+详见 [packages/pi-viking-memory](https://github.com/lbq110/pi-mono/tree/feat/pi-viking-memory/packages/pi-viking-memory)。
+
+---
 
 ## 核心理念
 
@@ -457,7 +523,7 @@ OpenViking 目前还处于早期阶段，有许多需要完善和探索的地方
 
 ### Star 趋势
 
-[![Star History Chart](https://api.star-history.com/svg?repos=volcengine/OpenViking&type=timeline&legend=top-left)](https://www.star-history.com/#volcengine/OpenViking&type=timeline&legend=top-left)
+[![Star History Chart](https://api.star-history.com/svg?repos=lbq110/OpenViking&type=timeline&legend=top-left)](https://www.star-history.com/#lbq110/OpenViking&type=timeline&legend=top-left)
 
 ---
 
@@ -468,15 +534,15 @@ OpenViking 目前还处于早期阶段，有许多需要完善和探索的地方
 
 <!-- 链接定义 -->
 
-[release-shield]: https://img.shields.io/github/v/release/volcengine/OpenViking?color=369eff&labelColor=black&logo=github&style=flat-square
-[release-link]: https://github.com/volcengine/OpenViking/releases
+[release-shield]: https://img.shields.io/github/v/release/lbq110/OpenViking?color=369eff&labelColor=black&logo=github&style=flat-square
+[release-link]: https://github.com/lbq110/OpenViking/releases
 [license-shield]: https://img.shields.io/badge/license-apache%202.0-white?labelColor=black&style=flat-square
-[license-shield-link]: https://github.com/volcengine/OpenViking/blob/main/LICENSE
-[last-commit-shield]: https://img.shields.io/github/last-commit/volcengine/OpenViking?color=c4f042&labelColor=black&style=flat-square
-[last-commit-shield-link]: https://github.com/volcengine/OpenViking/commits/main
-[github-stars-shield]: https://img.shields.io/github/stars/volcengine/OpenViking?labelColor&style=flat-square&color=ffcb47
-[github-stars-link]: https://github.com/volcengine/OpenViking
-[github-issues-shield]: https://img.shields.io/github/issues/volcengine/OpenViking?labelColor=black&style=flat-square&color=ff80eb
-[github-issues-shield-link]: https://github.com/volcengine/OpenViking/issues
-[github-contributors-shield]: https://img.shields.io/github/contributors/volcengine/OpenViking?color=c4f042&labelColor=black&style=flat-square
-[github-contributors-link]: https://github.com/volcengine/OpenViking/graphs/contributors
+[license-shield-link]: https://github.com/lbq110/OpenViking/blob/main/LICENSE
+[last-commit-shield]: https://img.shields.io/github/last-commit/lbq110/OpenViking?color=c4f042&labelColor=black&style=flat-square
+[last-commit-shield-link]: https://github.com/lbq110/OpenViking/commits/main
+[github-stars-shield]: https://img.shields.io/github/stars/lbq110/OpenViking?labelColor&style=flat-square&color=ffcb47
+[github-stars-link]: https://github.com/lbq110/OpenViking
+[github-issues-shield]: https://img.shields.io/github/issues/lbq110/OpenViking?labelColor=black&style=flat-square&color=ff80eb
+[github-issues-shield-link]: https://github.com/lbq110/OpenViking/issues
+[github-contributors-shield]: https://img.shields.io/github/contributors/lbq110/OpenViking?color=c4f042&labelColor=black&style=flat-square
+[github-contributors-link]: https://github.com/lbq110/OpenViking/graphs/contributors
